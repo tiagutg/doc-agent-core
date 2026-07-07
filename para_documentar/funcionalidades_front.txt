@@ -1,0 +1,2 @@
+Tela de Login: O usuário digita e-mail e senha. Se errar, mostra aviso vermelho.
+Tela de Dashboard: Mostra um gráfico de vendas e um botão para exportar relatório em PDF.
