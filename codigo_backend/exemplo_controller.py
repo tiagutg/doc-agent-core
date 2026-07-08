@@ -1,5 +1,5 @@
 # exemplo_controller.py
-from exemplo_backend import cadastrar_novo_usuario
+from codigo_backend.exemplo_backend import cadastrar_novo_usuario
 
 def rota_api_registrar_usuario(requisicao_http):
     """

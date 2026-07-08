@@ -1,37 +1,38 @@
 {
   "file": "exemplo_backend.py",
   "role": "service",
-  "summary": "Este arquivo implementa funcionalidades básicas de gerenciamento de usuários, incluindo criptografia de senha e um serviço de cadastro de novos usuários com validações.",
+  "summary": "Este arquivo implementa funcionalidades básicas de gerenciamento de usuários, incluindo criptografia de senha e cadastro de novos usuários com validações de entrada.",
   "responsibilities": [
     "Criptografar senhas de usuários usando SHA-256.",
     "Validar o formato e a unicidade do e-mail durante o cadastro.",
     "Validar o comprimento mínimo da senha durante o cadastro.",
-    "Armazenar dados de novos usuários (nome e senha criptografada) em um banco de dados simulado."
+    "Armazenar dados de novos usuários em um banco de dados simulado em memória."
   ],
   "business_rules": [
-    "O e-mail fornecido para cadastro não pode ser vazio e deve conter o caractere '@'.",
-    "O e-mail fornecido para cadastro deve ser único no sistema.",
+    "O e-mail fornecido para cadastro deve ser válido (conter '@').",
+    "O e-mail fornecido para cadastro não pode já estar registrado no sistema.",
     "A senha fornecida para cadastro deve ter no mínimo 6 caracteres.",
-    "As senhas devem ser criptografadas usando SHA-256 antes de serem armazenadas."
+    "As senhas dos usuários devem ser armazenadas de forma criptografada (SHA-256)."
   ],
   "dependencies": [
     "hashlib"
   ],
   "database_entities": [
-    "Usuário (representado por BANCO_DE_DADOS_USUARIOS)"
+    "Usuário (com campos: nome, email, senha criptografada)"
   ],
   "external_integrations": [],
   "api_endpoints": [],
   "security": [
-    "Criptografia de senha utilizando SHA-256 para armazenamento seguro."
+    "Criptografia de senhas usando SHA-256.",
+    "Validação de comprimento mínimo de senha para aumentar a robustez."
   ],
   "errors": [
-    "E-mail inválido.",
-    "Este e-mail já está cadastrado.",
-    "A senha deve ter pelo menos 6 caracteres."
+    "Retorna erro se o e-mail for inválido (vazio ou sem '@').",
+    "Retorna erro se o e-mail já estiver cadastrado.",
+    "Retorna erro se a senha tiver menos de 6 caracteres."
   ],
   "observations": [
-    "O sistema de armazenamento de usuários é uma simulação em memória (BANCO_DE_DADOS_USUARIOS).",
-    "A importação do módulo 'os' não é utilizada no código fornecido."
+    "O banco de dados é uma simulação em memória (dicionário Python), não persistente.",
+    "O módulo 'os' é importado, mas não utilizado no código fornecido."
   ]
 }
