@@ -1,0 +1,37 @@
+{
+  "file": "exemplo_backend.py",
+  "role": "service",
+  "summary": "Este arquivo implementa funcionalidades básicas de gerenciamento de usuários, incluindo criptografia de senha e um serviço de cadastro de novos usuários com validações.",
+  "responsibilities": [
+    "Criptografar senhas de usuários usando SHA-256.",
+    "Validar o formato e a unicidade do e-mail durante o cadastro.",
+    "Validar o comprimento mínimo da senha durante o cadastro.",
+    "Armazenar dados de novos usuários (nome e senha criptografada) em um banco de dados simulado."
+  ],
+  "business_rules": [
+    "O e-mail fornecido para cadastro não pode ser vazio e deve conter o caractere '@'.",
+    "O e-mail fornecido para cadastro deve ser único no sistema.",
+    "A senha fornecida para cadastro deve ter no mínimo 6 caracteres.",
+    "As senhas devem ser criptografadas usando SHA-256 antes de serem armazenadas."
+  ],
+  "dependencies": [
+    "hashlib"
+  ],
+  "database_entities": [
+    "Usuário (representado por BANCO_DE_DADOS_USUARIOS)"
+  ],
+  "external_integrations": [],
+  "api_endpoints": [],
+  "security": [
+    "Criptografia de senha utilizando SHA-256 para armazenamento seguro."
+  ],
+  "errors": [
+    "E-mail inválido.",
+    "Este e-mail já está cadastrado.",
+    "A senha deve ter pelo menos 6 caracteres."
+  ],
+  "observations": [
+    "O sistema de armazenamento de usuários é uma simulação em memória (BANCO_DE_DADOS_USUARIOS).",
+    "A importação do módulo 'os' não é utilizada no código fornecido."
+  ]
+}

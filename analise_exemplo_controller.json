@@ -1,0 +1,32 @@
+{
+  "file": "exemplo_controller.py",
+  "role": "controller",
+  "summary": "Este arquivo define um endpoint de API para registrar novos usuários, recebendo dados de requisições HTTP e delegando a lógica de negócio para um serviço backend.",
+  "responsibilities": [
+    "Receber requisições HTTP para o registro de usuários.",
+    "Validar o método da requisição HTTP (deve ser POST).",
+    "Extrair dados de usuário (nome, email, senha) da requisição.",
+    "Chamar a função de serviço `cadastrar_novo_usuario` para processar o registro.",
+    "Retornar respostas HTTP apropriadas (sucesso ou erro) com base no resultado da operação."
+  ],
+  "business_rules": [
+    "A requisição para registrar um usuário deve ser do tipo POST."
+  ],
+  "dependencies": [
+    "exemplo_backend.cadastrar_novo_usuario"
+  ],
+  "database_entities": [],
+  "external_integrations": [],
+  "api_endpoints": [
+    "POST /api/usuarios/registrar"
+  ],
+  "security": [],
+  "errors": [
+    "Retorna status 405 se o método HTTP não for POST.",
+    "Retorna status 400 se o serviço `cadastrar_novo_usuario` indicar falha no registro."
+  ],
+  "observations": [
+    "O controller atua como uma camada fina, delegando a lógica de negócio para um serviço externo (`exemplo_backend`).",
+    "A validação de dados de entrada (nome, email, senha) é implícita na chamada ao serviço, mas não explícita no controller."
+  ]
+}
