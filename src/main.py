@@ -5,7 +5,7 @@ from src.agents.doc_agent import criar_agente_e_tarefa_documentacao
 def rodar_agente_documentador():
     print("[1/4] Iniciando o Motor do Agente de Documentação...")
     
-    caminho_do_codigo = os.path.join("src", "utils", "file_reader.py")
+    caminho_do_codigo = "exemplo_backend.py"
     
     print(f"[2/4] Lendo o arquivo de código: '{caminho_do_codigo}'...")
     conteudo_codigo = ler_arquivo_local(caminho_do_codigo)
