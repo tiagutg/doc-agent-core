@@ -1,38 +1,48 @@
 import os
+import json
 from src.utils.file_reader import ler_arquivo_local
-from src.agents.doc_agent import criar_agente_e_tarefa_documentacao
+from src.agents.doc_agent import criar_agente_analisador_arquivos, estruturar_tarefa_analise
+from src.config.schema import AnaliseArquivoJSON
 
-def rodar_agente_documentador():
-    print("[1/4] Iniciando o Motor do Agente de Documentação...")
+def rodar_pipeline_analise():
+    print("[1/4] Inicializando Motor de Análise Estruturada...")
+    client, sistema = criar_agente_analisador_arquivos()
     
-    caminho_do_codigo = "exemplo_backend.py"
+    # Arquivo alvo (vamos testar com o nosso exemplo de backend)
+    nome_arquivo = "exemplo_backend.py"
     
-    print(f"[2/4] Lendo o arquivo de código: '{caminho_do_codigo}'...")
-    conteudo_codigo = ler_arquivo_local(caminho_do_codigo)
+    print(f"[2/4] Lendo conteúdo de '{nome_arquivo}'...")
+    conteudo_codigo = ler_arquivo_local(nome_arquivo)
     
-    # Se o texto COMEÇAR com ERRO:, aí sim interrompe.
     if conteudo_codigo.startswith("ERRO:"):
         print(conteudo_codigo)
         return
-
-    print("[3/4] Conectando diretamente ao Gemini...")
-    client, sistema, tarefa = criar_agente_e_tarefa_documentacao(conteudo_codigo)
-
-    print("\n O Gemini está analisando o seu código e escrevendo a documentação. Aguarda um momento...")
+        
+    tarefa = estruturar_tarefa_analise(nome_arquivo, conteudo_codigo)
     
-    # Chama o modelo atualizado oficial do Google
+    print("[3/4] Gemini extraindo metadados agnósticos em JSON...")
+    
+    # Aqui passamos o response_schema para forçar o Gemini a seguir o Pydantic
     resposta = client.models.generate_content(
         model='gemini-2.5-flash',
         contents=tarefa,
-        config={'system_instruction': sistema}
+        config=types.GenerateContentConfig(
+            system_instruction=sistema,
+            response_mime_type="application/json",
+            response_schema=AnaliseArquivoJSON,
+            temperature=0.1 # Temperatura baixa para evitar alucinações nas regras de negócio
+        ),
     )
-
-    print("\n[4/4] Salvando o resultado final...")
-    arquivo_saida = "DOCUMENTACAO_GERADA.md"
+    
+    print("[4/4] Salvando metadados extraídos...")
+    arquivo_saida = "analise_snapshot.json"
+    
+    # Valida e formata o JSON antes de salvar
+    dados_json = json.loads(resposta.text)
     with open(arquivo_saida, "w", encoding="utf-8") as f:
-        f.write(resposta.text)
-
-    print(f"[SUCESSO] Documentação gerada e salva em: '{arquivo_saida}'!")
+        json.dump(dados_json, f, indent=2, ensure_ascii=False)
+        
+    print(f"\n[SUCESSO] Base de conhecimento iniciada! Dados salvos em '{arquivo_saida}'")
 
 if __name__ == "__main__":
-    rodar_agente_documentador()
+    rodar_pipeline_analise()
