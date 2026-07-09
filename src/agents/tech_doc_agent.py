@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def criar_agente_gerador_tecnico():
+def criar_agente_documentador_tecnico():
     chave = os.getenv("GEMINI_API_KEY")
     if not chave:
         raise ValueError("ERRO: A variável GEMINI_API_KEY não foi encontrada!")
@@ -12,30 +12,31 @@ def criar_agente_gerador_tecnico():
     client = genai.Client(api_key=chave)
     
     prompt_sistema = (
-        "Você é um Engenheiro de Software Principal responsável pela escrita de documentações técnicas oficiais (Readmes e Wikis). "
-        "Seu tom é extremamente formal, exato, técnico e direto ao ponto."
+        "Você é um Redator Técnico especializado em Engenharia de Software Backend (Technical Writer). "
+        "Sua missão é pegar resumos de arquitetura e transformá-los em um manual técnico de referência completo "
+        "e rigoroso para a equipe de engenharia e DevOps."
     )
     
     return client, prompt_sistema
 
-def estruturar_tarefa_documentacao_final(mapa_arquitetura: str):
-    prompt_tarefa = f"""Com base no mapa de arquitetura unificado do sistema:\n\n{mapa_arquitetura}\n\n
-    Gere a DOCUMENTAÇÃO TÉCNICA OFICIAL DO BACKEND em formato Markdown (.md) seguindo rigidamente esta estrutura:
+def estruturar_tarefa_documento_final(mapa_arquitetura: str):
+    prompt_tarefa = f"""Com base no seguinte Mapa de Arquitetura Consolidada:\n\n{mapa_arquitetura}\n\n
+    Gere a DOCUMENTAÇÃO TÉCNICA DO BACKEND definitiva em formato Markdown (.md). Siga este sumário:
     
-    #  GUIA DE ENGENHARIA DO BACKEND
+    #  Documentação Oficial de Engenharia - Backend
     
-    ## 1. Visão Geral do Sistema
-    Descreva resumidamente a arquitetura geral que foi implementada.
+    ## 1. Visão Geral do Sistema e Tecnologias
+    Detalhamento macro das camadas (Controllers, Services) baseando-se no mapa fornecido.
     
-    ## 2. Endpoints e Rotas Disponíveis
-    Crie uma seção detalhada para cada rota identificada, mostrando o método HTTP, os parâmetros esperados e o comportamento de sucesso/erro.
+    ## 2. Guia de Instalação e Inicialização Local
+    Como configurar o ambiente virtual, instalar dependências e rodar o projeto (pense nos passos padrão com python e virtualenv).
     
-    ## 3. Segurança e Criptografia
-    Explique detalhadamente as camadas de proteção de dados que este backend possui.
+    ## 3. Estrutura de Diretórios de Referência
+    Explique o papel arquitetural das pastas dominantes (src, agents, config, utils).
     
-    ## 4. Guia de Manutenção e Extensão
-    Dê instruções técnicas para que um novo programador saiba como criar novas regras de negócio ou rotas seguindo o mesmo padrão estrutural deste código.
+    ## 4. Catálogo de Endpoints e Fluxo de Dados Bruto
+    Mapeie os endpoints citados, os métodos HTTP aceitos e a validação de regras de negócio de ponta a ponta.
     
-    Gere um documento pronto para produção, sem marcas de rascunho."""
+    Escreva de forma extremamente polida, clara, exaustiva e usando blocos de código onde julgar necessário."""
     
     return prompt_tarefa
