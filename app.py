@@ -1,7 +1,17 @@
 import os
+import json
+import io
+import markdown
 from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List
+from xhtml2pdf import pisa
+
+# ====== IMPORTAÇÕES ADICIONADAS PARA CORRIGIR O ERRO DE EXTENSÃO ======
+from markdown.extensions.tables import TableExtension
+from markdown.extensions.fenced_code import FencedCodeExtension
+# =====================================================================
 
 # Importando a inteligência que já criamos nos seus agentes
 from google.genai import types
@@ -50,7 +60,6 @@ async def analisar_arquivo_binario(file: UploadFile = File(...)):
                 temperature=0.1
             ),
         )
-        import json
         return json.loads(resposta.text)
         
     except Exception as e:
@@ -76,10 +85,10 @@ async def analisar_arquivo(dados: RequisicaoAnalise):
                 temperature=0.1
             ),
         )
-        import json
         return json.loads(resposta.text)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro na análise: {str(e)}")
+
 
 # ==========================================
 # ROTA 2: Consolidar e Gerar Documento Final
@@ -122,6 +131,61 @@ async def consolidar_e_documentar(dados: RequisicaoConsolidacao):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro na consolidação: {str(e)}")
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
+
+# ============================================================
+# ROTA 3: Converte o Markdown em PDF Estilizado (Padrão Word)
+# ============================================================
+@app.post("/api/gerar-pdf")
+async def gerar_pdf(payload: dict):
+    try:
+        # 1. Log para ver no terminal o que está chegando do n8n
+        print("====== PAYLOAD RECEBIDO DO N8N ======")
+        print(payload)
+        print("=====================================")
+
+        texto_markdown = payload.get("markdown", "")
+        if not texto_markdown:
+            raise HTTPException(status_code=400, detail="Markdown não fornecido no payload.")
+        
+        # 2. Tenta converter com extensões, se der erro de tipo, tenta o plano B (texto puro)
+        try:
+            html_puro = markdown.markdown(
+                texto_markdown, 
+                extensions=[TableExtension(), FencedCodeExtension()]
+            )
+        except Exception as err_markdown:
+            print(f"Erro nas extensões do markdown: {err_markdown}")
+            # Plano B: Gera o HTML sem extensões para não travar o processo
+            html_puro = markdown.markdown(texto_markdown)
+        
+        # 3. Design e Folha de Estilo CSS
+        css_estilo = """
+        <style>
+            @page { size: a4; margin: 2.5cm; }
+            body { font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.6; color: #333333; }
+            h1 { font-size: 22pt; color: #0f3c5c; border-bottom: 2px solid #0f3c5c; }
+            h2 { font-size: 16pt; color: #1d6394; }
+            pre { background-color: #f4f4f4; padding: 12px; border-left: 4px solid #1d6394; }
+        </style>
+        """
+        
+        html_completo = f"<html><head>{css_estilo}</head><body>{html_puro}</body></html>"
+        
+        pdf_buffer = io.BytesIO()
+        pisa_status = pisa.CreatePDF(html_completo, dest=pdf_buffer)
+        
+        if pisa_status.err:
+            raise HTTPException(status_code=500, detail="Erro interno do xhtml2pdf ao renderizar.")
+        
+        pdf_buffer.seek(0)
+        
+        return StreamingResponse(
+            pdf_buffer, 
+            media_type="application/pdf", 
+            headers={"Content-Disposition": "attachment; filename=documentacao_backend.pdf"}
+        )
+    except Exception as e:
+        # Se estourar o NotImplementedType, o print vai nos dizer onde foi
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Erro interno rastreado: {str(e)}")
