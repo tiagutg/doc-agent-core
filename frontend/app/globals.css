@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Tema: identidade corporativa Mindworks — fundo claro (branco/cinza-claro),
+  tipografia sem-serifa (Inter) para títulos e corpo, acento em Azul Royal
+  para ações, Azul Marinho reservado para elementos de navegação/estrutura
+  (ex: Sidebar). Âmbar/laranja/dourado foram totalmente removidos.
+
+  Os NOMES das variáveis (--background, --accent, --surface...) permanecem
+  os mesmos do tema anterior de propósito: como os componentes consomem
+  apenas esses tokens semânticos (nunca cores hardcoded), a retematização
+  não exige alteração em nenhum componente existente.
+*/
+:root {
+  --font-display: "Inter", sans-serif;
+  --font-body: "IBM Plex Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Tema claro corporativo (padrão) */
+  --background: 210 20% 98%; /* branco levemente azulado */
+  --foreground: 213 60% 14%; /* azul marinho profundo (#0A1F3D aprox.) */
+
+  --navy: 210 100% 20%; /* #003366 — Azul Marinho institucional */
+  --navy-foreground: 0 0% 100%;
+
+  --surface: 0 0% 100%;
+  --surface-elevated: 210 25% 99%;
+  --surface-hover: 210 20% 95%;
+  --surface-input: 210 20% 97%;
+
+  --border: 210 16% 88%;
+  --border-hover: 210 16% 78%;
+
+  --muted-foreground: 213 15% 45%;
+
+  --accent: 217 91% 45%; /* Azul Royal — ações primárias */
+  --accent-foreground: 0 0% 100%;
+
+  --radius: 0.75rem;
+}
+
+/*
+  Variante escura corporativa, reservada para uso futuro via
+  Configurações > Tema (ver components/features/ConfiguracoesForm.tsx).
+  Ainda não é o padrão da aplicação.
+*/
+.dark {
+  --background: 213 55% 8%;
+  --foreground: 210 20% 96%;
+
+  --navy: 210 100% 20%;
+  --navy-foreground: 0 0% 100%;
+
+  --surface: 213 45% 11%;
+  --surface-elevated: 213 40% 14%;
+  --surface-hover: 213 40% 17%;
+  --surface-input: 213 45% 12%;
+
+  --border: 213 30% 20%;
+  --border-hover: 213 25% 28%;
+
+  --muted-foreground: 210 15% 65%;
+
+  --accent: 217 91% 60%;
+  --accent-foreground: 213 55% 10%;
+
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background-image: radial-gradient(
+      ellipse 70% 40% at 50% -10%,
+      hsl(var(--accent) / 0.06),
+      transparent
+    );
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background-color: hsl(var(--accent) / 0.2);
+  }
+
+  /* Scrollbar discreta, alinhada ao tema ativo (claro ou escuro) */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border-hover));
+    border-radius: 999px;
+    border: 2px solid hsl(var(--background));
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  /* Textura de "grão" sutil sobre cards, reforça o tom editorial/premium */
+  .grain-overlay {
+    position: relative;
+  }
+  .grain-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.4;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+    border-radius: inherit;
+  }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-pulse-soft {
+  animation: pulse-soft 2.2s ease-in-out infinite;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}

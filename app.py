@@ -7,13 +7,13 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List
 from xhtml2pdf import pisa
+from docx import Document # Adicionado para gerar Word
 
-# ====== IMPORTAÇÕES ADICIONADAS PARA CORRIGIR O ERRO DE EXTENSÃO ======
+# Importações de extensões
 from markdown.extensions.tables import TableExtension
 from markdown.extensions.fenced_code import FencedCodeExtension
-# =====================================================================
 
-# Importando a inteligência que já criamos nos seus agentes
+# Importações da sua lógica de IA
 from google.genai import types
 from src.agents.doc_agent import criar_agente_analisador_arquivos, estruturar_tarefa_analise
 from src.config.schema import AnaliseArquivoJSON
@@ -133,59 +133,53 @@ async def consolidar_e_documentar(dados: RequisicaoConsolidacao):
 
 
 # ============================================================
-# ROTA 3: Converte o Markdown em PDF Estilizado (Padrão Word)
+# ROTA: Gerar PDF 
 # ============================================================
 @app.post("/api/gerar-pdf")
 async def gerar_pdf(payload: dict):
-    try:
-        # 1. Log para ver no terminal o que está chegando do n8n
-        print("====== PAYLOAD RECEBIDO DO N8N ======")
-        print(payload)
-        print("=====================================")
+    texto_markdown = payload.get("texto", "") # Alterado de 'markdown' para 'texto'
+    if not texto_markdown:
+        raise HTTPException(status_code=400, detail="Texto não fornecido no payload.")
+    
+    html_puro = markdown.markdown(texto_markdown, extensions=[TableExtension(), FencedCodeExtension()])
+    
+    css_estilo = """
+    <style>
+        @page { size: a4; margin: 2.5cm; }
+        body { font-family: Arial, sans-serif; font-size: 11pt; }
+        h1 { color: #0f3c5c; }
+        pre { background-color: #f4f4f4; padding: 12px; }
+    </style>
+    """
+    html_completo = f"<html><head>{css_estilo}</head><body>{html_puro}</body></html>"
+    
+    pdf_buffer = io.BytesIO()
+    pisa.CreatePDF(html_completo, dest=pdf_buffer)
+    pdf_buffer.seek(0)
+    
+    return StreamingResponse(
+        pdf_buffer, 
+        media_type="application/pdf", 
+        headers={"Content-Disposition": "attachment; filename=documentacao.pdf"}
+    )
 
-        texto_markdown = payload.get("markdown", "")
-        if not texto_markdown:
-            raise HTTPException(status_code=400, detail="Markdown não fornecido no payload.")
-        
-        # 2. Tenta converter com extensões, se der erro de tipo, tenta o plano B (texto puro)
-        try:
-            html_puro = markdown.markdown(
-                texto_markdown, 
-                extensions=[TableExtension(), FencedCodeExtension()]
-            )
-        except Exception as err_markdown:
-            print(f"Erro nas extensões do markdown: {err_markdown}")
-            # Plano B: Gera o HTML sem extensões para não travar o processo
-            html_puro = markdown.markdown(texto_markdown)
-        
-        # 3. Design e Folha de Estilo CSS
-        css_estilo = """
-        <style>
-            @page { size: a4; margin: 2.5cm; }
-            body { font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.6; color: #333333; }
-            h1 { font-size: 22pt; color: #0f3c5c; border-bottom: 2px solid #0f3c5c; }
-            h2 { font-size: 16pt; color: #1d6394; }
-            pre { background-color: #f4f4f4; padding: 12px; border-left: 4px solid #1d6394; }
-        </style>
-        """
-        
-        html_completo = f"<html><head>{css_estilo}</head><body>{html_puro}</body></html>"
-        
-        pdf_buffer = io.BytesIO()
-        pisa_status = pisa.CreatePDF(html_completo, dest=pdf_buffer)
-        
-        if pisa_status.err:
-            raise HTTPException(status_code=500, detail="Erro interno do xhtml2pdf ao renderizar.")
-        
-        pdf_buffer.seek(0)
-        
-        return StreamingResponse(
-            pdf_buffer, 
-            media_type="application/pdf", 
-            headers={"Content-Disposition": "attachment; filename=documentacao_backend.pdf"}
-        )
-    except Exception as e:
-        # Se estourar o NotImplementedType, o print vai nos dizer onde foi
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Erro interno rastreado: {str(e)}")
+# ============================================================
+# ROTA: Gerar DOCX 
+# ============================================================
+@app.post("/api/gerar-doc")
+async def gerar_doc(payload: dict):
+    texto = payload.get("texto", "Conteúdo não fornecido")
+    
+    doc = Document()
+    doc.add_heading('Documentação Técnica', 0)
+    doc.add_paragraph(texto)
+    
+    buffer = io.BytesIO()
+    doc.save(buffer)
+    buffer.seek(0)
+    
+    return StreamingResponse(
+        buffer,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": "attachment; filename=documentacao.docx"}
+    )
