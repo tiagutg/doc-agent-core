@@ -83,9 +83,9 @@ export default function PaginaGerar() {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col px-4 py-10 sm:px-6 md:py-14">
+    <main className="mx-auto flex min-h-screen max-w-2xl flex-col px-4 py-8 sm:px-6 md:py-10">
       {/* Cabeçalho da página (a marca "DocForge" já vive na Sidebar) */}
-      <header className="mb-8">
+      <header className="mb-6">
         <h1 className="font-display text-2xl font-semibold text-foreground">
           Gerar Documentação
         </h1>
@@ -106,16 +106,16 @@ export default function PaginaGerar() {
                 Arraste os arquivos do seu projeto ou selecione-os manualmente.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-8">
+            <CardContent className="space-y-6">
               <Dropzone arquivos={arquivos} onArquivosChange={setArquivos} />
 
               <div className="h-px w-full bg-border" />
 
               <div>
-                <h2 className="font-display text-lg font-medium text-foreground">
+                <h2 className="font-display text-base font-semibold text-foreground">
                   2. Configure a documentação
                 </h2>
-                <p className="mb-4 mt-1 text-sm text-muted-foreground">
+                <p className="mb-3 mt-1 text-sm text-muted-foreground">
                   Escolha o tipo de conteúdo e o formato do arquivo final.
                 </p>
                 <ConfigForm

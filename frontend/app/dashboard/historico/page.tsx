@@ -33,8 +33,8 @@ export default function PaginaHistorico() {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-4xl flex-col px-4 py-10 sm:px-6 md:py-14">
-      <header className="mb-8 flex items-start justify-between gap-4">
+    <main className="mx-auto flex min-h-screen max-w-4xl flex-col px-4 py-8 sm:px-6 md:py-10">
+      <header className="mb-6 flex items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-semibold text-foreground">Histórico</h1>
           <p className="mt-1.5 text-sm text-muted-foreground">

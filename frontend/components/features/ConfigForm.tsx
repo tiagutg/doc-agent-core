@@ -40,7 +40,7 @@ export function ConfigForm({ configuracao, onConfiguracaoChange, disabled }: Con
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Select: Tipo de Documentação */}
       <div className="space-y-2">
         <label className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
@@ -86,7 +86,7 @@ export function ConfigForm({ configuracao, onConfiguracaoChange, disabled }: Con
                 disabled={disabled}
                 onClick={() => atualizarFormato(opcao.value)}
                 className={cn(
-                  "flex flex-col items-center gap-2 rounded-xl border px-3 py-4 text-center transition-all duration-200 disabled:pointer-events-none disabled:opacity-50",
+                  "flex flex-col items-center gap-1.5 rounded-xl border px-3 py-3 text-center transition-all duration-200 disabled:pointer-events-none disabled:opacity-50",
                   selecionado
                     ? "border-accent/50 bg-accent/[0.08] shadow-[0_0_0_1px_rgba(245,194,66,0.2)]"
                     : "border-border bg-surface-input hover:border-border-hover hover:bg-surface-hover"
