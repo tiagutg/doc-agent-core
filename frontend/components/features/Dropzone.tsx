@@ -70,7 +70,7 @@ export function Dropzone({ arquivos, onArquivosChange, disabled }: DropzoneProps
       <div
         {...getRootProps()}
         className={cn(
-          "group relative flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-14 text-center transition-all duration-200",
+          "group relative flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-9 text-center transition-all duration-200",
           isDragActive
             ? "border-accent bg-accent/[0.06] scale-[1.01]"
             : "border-border hover:border-border-hover hover:bg-surface-hover/40",
@@ -81,25 +81,25 @@ export function Dropzone({ arquivos, onArquivosChange, disabled }: DropzoneProps
 
         <div
           className={cn(
-            "mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-border bg-surface-elevated transition-transform duration-200",
+            "mb-3 flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface-elevated transition-transform duration-200",
             isDragActive && "scale-110 border-accent/40"
           )}
         >
           <UploadCloud
             className={cn(
-              "h-6 w-6 text-muted-foreground transition-colors",
+              "h-5 w-5 text-muted-foreground transition-colors",
               isDragActive && "text-accent"
             )}
           />
         </div>
 
-        <p className="font-display text-lg text-foreground">
+        <p className="font-display text-base font-medium text-foreground">
           {isDragActive ? "Solte os arquivos aqui" : "Arraste seus arquivos de código"}
         </p>
-        <p className="mt-1.5 text-sm text-muted-foreground">
+        <p className="mt-1 text-sm text-muted-foreground">
           ou <span className="text-accent underline-offset-4 group-hover:underline">clique para selecionar</span> do seu computador
         </p>
-        <p className="mt-4 font-mono text-xs text-muted-foreground/70">
+        <p className="mt-3 font-mono text-xs text-muted-foreground/70">
           .py .js .ts .java .go .rb .php .rs — até 10MB por arquivo
         </p>
       </div>

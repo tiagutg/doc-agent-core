@@ -1,0 +1,24 @@
+{
+  "version": 4,
+  "activeEnvironmentId": "n8n",
+  "environmentTargets": [
+    {
+      "id": "managed",
+      "name": "managed",
+      "kind": "managed-instance",
+      "managedInstanceId": "managed-07fdf335"
+    }
+  ],
+  "environments": [
+    {
+      "id": "n8n",
+      "name": "n8n",
+      "syncSlug": "n8n",
+      "environmentTargetId": "managed",
+      "projectId": "personal",
+      "projectName": "Personal",
+      "workflowsPath": "workflows/n8n",
+      "folderSync": true
+    }
+  ]
+}
