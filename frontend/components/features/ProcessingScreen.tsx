@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BrainCircuit, FileSearch, Sparkles } from "lucide-react";
+import { BrainCircuit, FileSearch, Sparkles, XCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
 interface ProcessingScreenProps {
   progresso: number; // 0-100
   mensagem?: string;
+  onCancel: () => void; // Adicionado para permitir o cancelamento
 }
 
 // Mensagens exibidas em rotação enquanto a IA analisa o código,
@@ -20,7 +21,7 @@ const MENSAGENS_ROTATIVAS = [
   "Formatando o documento final...",
 ];
 
-export function ProcessingScreen({ progresso, mensagem }: ProcessingScreenProps) {
+export function ProcessingScreen({ progresso, mensagem, onCancel }: ProcessingScreenProps) {
   const [indiceMensagem, setIndiceMensagem] = useState(0);
 
   // Alterna a mensagem de "skeleton" a cada poucos segundos quando o backend
@@ -75,9 +76,20 @@ export function ProcessingScreen({ progresso, mensagem }: ProcessingScreenProps)
       <div className="mt-10 flex items-center gap-2 rounded-full border border-border bg-surface-input px-4 py-2">
         <FileSearch className="h-3.5 w-3.5 text-muted-foreground" />
         <span className="font-mono text-xs text-muted-foreground">
-          A IA está analisando seus arquivos — isso pode levar alguns minutos
+          Estamos analisando seus arquivos, isso pode levar alguns minutos...
         </span>
         <Sparkles className="h-3.5 w-3.5 text-accent" />
+      </div>
+
+      {/* Botão de Cancelar Processo */}
+      <div className="mt-8">
+        <button
+          onClick={onCancel}
+          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-mono font-medium text-red-500 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg transition-colors cursor-pointer"
+        >
+          <XCircle className="h-4 w-4" />
+          Cancelar Processo
+        </button>
       </div>
     </div>
   );

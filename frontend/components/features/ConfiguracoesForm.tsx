@@ -45,7 +45,7 @@ export function ConfiguracoesForm() {
         <CardHeader>
           <CardTitle>Preferências gerais</CardTitle>
           <CardDescription>
-            Aplicadas apenas neste navegador — ainda sem sincronização com backend.
+            Aplicadas apenas neste navegador - ainda sem sincronização com backend.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -63,7 +63,7 @@ export function ConfiguracoesForm() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="claro">Claro (padrão Mindworks)</SelectItem>
+                <SelectItem value="claro">Claro (padrão)</SelectItem>
                 <SelectItem value="escuro">Escuro</SelectItem>
               </SelectContent>
             </Select>

@@ -11,50 +11,76 @@ import { SuccessCard } from "@/components/features/SuccessCard";
 import { useDocGeneration } from "@/hooks/useDocGeneration";
 import { useToast } from "@/components/ui/use-toast";
 import { salvarItemHistorico } from "@/lib/historico";
+import { filtrarArquivosPorEscopo } from "@/lib/validacaoArquivos";
 import type { ArquivoSelecionado, ConfiguracaoDocumento } from "@/lib/types";
 
 export default function PaginaGerar() {
   const { toast } = useToast();
 
-  // Estado local: arquivos selecionados e configuração escolhida pelo usuário.
-  // Idêntico ao que já existia em app/page.tsx — nenhuma mudança de comportamento.
   const [arquivos, setArquivos] = useState<ArquivoSelecionado[]>([]);
-  const [configuracao, setConfiguracao] = useState<ConfiguracaoDocumento>({
-    tipoDocumentacao: "arquitetura-backend",
-    formatoSaida: "md",
+  
+  // Inicializa o estado buscando do sessionStorage se disponível (evita reset ao navegar)
+  const [configuracao, setConfiguracao] = useState<ConfiguracaoDocumento>(() => {
+    if (typeof window !== "undefined") {
+      const formatoSalvo = sessionStorage.getItem("formato_saida");
+      const tipoSalvo = sessionStorage.getItem("tipo_documentacao");
+      if (formatoSalvo || tipoSalvo) {
+        return {
+          tipoDocumentacao: (tipoSalvo as any) || "arquitetura-backend",
+          formatoSaida: (formatoSalvo as any) || "docx",
+        };
+      }
+    }
+    return {
+      tipoDocumentacao: "arquitetura-backend",
+      formatoSaida: "docx",
+    };
   });
 
-  // Hook central que controla envio + polling + conclusão.
-  // API do hook consumida exatamente como antes — nenhuma alteração aqui.
+  // Salva no sessionStorage sempre que a configuração mudar (Persistência em tempo real)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("formato_saida", configuracao.formatoSaida);
+      sessionStorage.setItem("tipo_documentacao", configuracao.tipoDocumentacao);
+    }
+  }, [configuracao]);
+
   const { status, progresso, mensagem, urlArquivoFinal, gerarDocumentacao, reiniciar } =
     useDocGeneration();
 
   const emProcessamento = status === "enviando" || status === "processando";
   const concluido = status === "concluido" && urlArquivoFinal;
 
-  // Evita salvar o mesmo resultado mais de uma vez no histórico
-  // (ex: re-renders enquanto o status permanece "concluido").
   const ultimaUrlSalva = useRef<string | null>(null);
 
+  // Salva histórico quando concluído com sucesso (com trava de unicidade por sessão)
   useEffect(() => {
-    if (status === "concluido" && urlArquivoFinal && ultimaUrlSalva.current !== urlArquivoFinal) {
-      salvarItemHistorico({
-        nomeArquivo: `documentacao.${configuracao.formatoSaida}`,
-        tipoDocumentacao: configuracao.tipoDocumentacao,
-        formatoSaida: configuracao.formatoSaida,
-        status: "concluido",
-        urlArquivo: urlArquivoFinal,
-      });
-      ultimaUrlSalva.current = urlArquivoFinal;
+    if (status === "concluido" && urlArquivoFinal) {
+      const chaveHistoricoSalvo = `historico_salvo_${urlArquivoFinal}`;
+      const jaSalvo = sessionStorage.getItem(chaveHistoricoSalvo);
+
+      if (!jaSalvo && ultimaUrlSalva.current !== urlArquivoFinal) {
+        salvarItemHistorico({
+          nomeArquivo: `documentacao_${configuracao.tipoDocumentacao}.${configuracao.formatoSaida}`,
+          tipoDocumentacao: configuracao.tipoDocumentacao,
+          formatoSaida: configuracao.formatoSaida,
+          status: "concluido",
+          urlArquivo: urlArquivoFinal,
+        });
+
+        sessionStorage.setItem(chaveHistoricoSalvo, "true");
+        ultimaUrlSalva.current = urlArquivoFinal;
+      }
     }
   }, [status, urlArquivoFinal, configuracao.formatoSaida, configuracao.tipoDocumentacao]);
 
-  // Também registra falhas no histórico, para rastreabilidade.
   const ultimoErroSalvo = useRef(false);
+  
+  // Salva histórico quando ocorre erro genérico (ex: falha de rede/API)
   useEffect(() => {
     if (status === "erro" && !ultimoErroSalvo.current) {
       salvarItemHistorico({
-        nomeArquivo: `documentacao.${configuracao.formatoSaida}`,
+        nomeArquivo: `documentacao_${configuracao.tipoDocumentacao}.${configuracao.formatoSaida}`,
         tipoDocumentacao: configuracao.tipoDocumentacao,
         formatoSaida: configuracao.formatoSaida,
         status: "erro",
@@ -73,30 +99,48 @@ export default function PaginaGerar() {
       });
       return;
     }
+
+    const { arquivosValidos, arquivosFiltrados } = filtrarArquivosPorEscopo(arquivos, configuracao.tipoDocumentacao);
+    
+    if (arquivosFiltrados.length > 0) {
+      toast({
+        variant: "destructive",
+        title: "Arquivos incompatíveis removidos",
+        description: `O(s) arquivo(s) [${arquivosFiltrados.join(", ")}] foram ignorados por não pertencerem ao escopo selecionado.`,
+      });
+      setArquivos(arquivosValidos);
+      return;
+    }
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("formato_saida", configuracao.formatoSaida);
+      sessionStorage.setItem("tipo_documentacao", configuracao.tipoDocumentacao);
+    }
+
     ultimaUrlSalva.current = null;
-    gerarDocumentacao(arquivos, configuracao);
+    gerarDocumentacao(arquivosValidos, configuracao);
   };
 
   const handleGerarNovamente = () => {
     setArquivos([]);
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("formato_saida");
+      sessionStorage.removeItem("tipo_documentacao");
+    }
     reiniciar();
   };
 
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col px-4 py-8 sm:px-6 md:py-10">
-      {/* Cabeçalho da página (a marca "DocForge" já vive na Sidebar) */}
       <header className="mb-6">
         <h1 className="font-display text-2xl font-semibold text-foreground">
           Gerar Documentação
         </h1>
         <p className="mt-1.5 text-sm text-muted-foreground">
-          Envie o código do seu projeto e receba documentação técnica completa,
-          gerada por IA, em minutos.
+          Envie o código do seu projeto e receba documentação técnica completa em minutos.
         </p>
       </header>
 
-      {/* Card principal com o fluxo de estados — mesma lógica de sempre,
-          apenas sem a textura "grain-overlay" (não combina com o visual corporativo) */}
       <Card className="overflow-hidden">
         {status === "idle" || status === "erro" ? (
           <>
@@ -107,7 +151,11 @@ export default function PaginaGerar() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <Dropzone arquivos={arquivos} onArquivosChange={setArquivos} />
+              <Dropzone 
+                arquivos={arquivos} 
+                onArquivosChange={setArquivos} 
+                tipoDocumentacao={configuracao.tipoDocumentacao} 
+              />
 
               <div className="h-px w-full bg-border" />
 
@@ -131,7 +179,19 @@ export default function PaginaGerar() {
             </CardContent>
           </>
         ) : emProcessamento ? (
-          <ProcessingScreen progresso={progresso} mensagem={mensagem} />
+          <ProcessingScreen 
+            progresso={progresso} 
+            mensagem={mensagem} 
+            onCancel={() => {
+              salvarItemHistorico({
+                nomeArquivo: `documentacao_${configuracao.tipoDocumentacao}.${configuracao.formatoSaida}`,
+                tipoDocumentacao: configuracao.tipoDocumentacao,
+                formatoSaida: configuracao.formatoSaida,
+                status: "cancelado",
+              });
+              reiniciar();
+            }} 
+          />
         ) : concluido ? (
           <SuccessCard
             urlArquivo={urlArquivoFinal!}
@@ -140,10 +200,6 @@ export default function PaginaGerar() {
           />
         ) : null}
       </Card>
-
-      <footer className="mt-8 text-center font-mono text-xs text-muted-foreground/60">
-        Processamento via n8n + IA · Seus arquivos não são armazenados após a geração
-      </footer>
     </main>
   );
 }
