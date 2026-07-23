@@ -63,7 +63,7 @@ export function Sidebar() {
 
         <div className="border-t border-white/10 px-6 py-5">
           <p className="font-mono text-[10px] text-white/40">
-            Processamento via n8n + IA
+            Processamento
           </p>
         </div>
       </aside>

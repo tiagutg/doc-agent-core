@@ -1,25 +1,22 @@
 import type { Metadata } from "next";
 import { Inter, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
-import "./globals.css";
+import "@/app/globals.css";
 import { QueryProvider } from "@/providers/QueryProvider";
+import { DocGenerationProvider } from "@/lib/DocGenerationContext";
 import { Toaster } from "@/components/ui/toaster";
 
-// Fonte de destaque (títulos): Inter — identidade corporativa Mindworks,
-// substitui a antiga Fraunces (serifada/editorial).
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-display",
   weight: ["500", "600", "700"],
 });
 
-// Fonte de corpo: humanista, alta legibilidade em dashboards corporativos.
 const plexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   variable: "--font-body",
   weight: ["400", "500", "600"],
 });
 
-// Fonte monoespaçada: usada em labels técnicos, badges e nomes de arquivo.
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
@@ -27,9 +24,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DocForge — Documentação de Software como Serviço",
+  title: "DocForge - Documentação de Software",
   description:
-    "Envie seu código e receba documentação técnica gerada por IA em Markdown, Word ou PDF.",
+    "Envie seu código e receba documentação técnica gerada em Markdown, Word ou PDF.",
 };
 
 export default function RootLayout({
@@ -39,12 +36,32 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
+      <head>
+        {/* Script síncrono para aplicar o tema escuro antes de renderizar e evitar o flash branco */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const salvo = localStorage.getItem("docforge:configuracoes");
+                if (salvo) {
+                  const config = JSON.parse(salvo);
+                  if (config.tema === "escuro") {
+                    document.documentElement.classList.add("dark");
+                  }
+                }
+              } catch (e) {}
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${inter.variable} ${plexSans.variable} ${jetbrainsMono.variable} min-h-screen bg-background font-body text-foreground antialiased`}
       >
         <QueryProvider>
-          {children}
-          <Toaster />
+          <DocGenerationProvider>
+            {children}
+            <Toaster />
+          </DocGenerationProvider>
         </QueryProvider>
       </body>
     </html>

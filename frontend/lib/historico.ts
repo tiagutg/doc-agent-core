@@ -10,7 +10,8 @@ import type { FormatoSaida, TipoDocumentacao } from "@/lib/types";
 const CHAVE_STORAGE = "docforge:historico";
 const LIMITE_ITENS = 50; // Evita que o localStorage cresça indefinidamente.
 
-export type StatusHistorico = "concluido" | "erro";
+// Adicionado "cancelado" aos status possíveis
+export type StatusHistorico = "concluido" | "erro" | "cancelado";
 
 export interface ItemHistorico {
   id: string;
@@ -19,7 +20,7 @@ export interface ItemHistorico {
   tipoDocumentacao: TipoDocumentacao;
   formatoSaida: FormatoSaida;
   status: StatusHistorico;
-  urlArquivo?: string; // Ausente quando status === "erro"
+  urlArquivo?: string; // Ausente quando status === "erro" ou "cancelado"
 }
 
 /** Lê todos os itens salvos, do mais recente para o mais antigo. */

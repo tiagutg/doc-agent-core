@@ -11,14 +11,25 @@ interface SuccessCardProps {
 }
 
 export function SuccessCard({ urlArquivo, formatoSaida, onGerarNovamente }: SuccessCardProps) {
-  // Dispara o download do arquivo diretamente no navegador do usuário.
-  const baixarArquivo = () => {
-    const link = document.createElement("a");
-    link.href = urlArquivo;
-    link.download = `documentacao.${formatoSaida}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  // Dispara o download do arquivo de forma forçada utilizando Blob para evitar que o navegador abra o PDF em outra aba.
+  const baixarArquivo = async () => {
+    try {
+      const response = await fetch(urlArquivo);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = `documentacao.${formatoSaida}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      // Fallback de segurança caso ocorra algum bloqueio de CORS
+      window.open(urlArquivo, "_blank");
+    }
   };
 
   return (
@@ -29,7 +40,7 @@ export function SuccessCard({ urlArquivo, formatoSaida, onGerarNovamente }: Succ
 
       <h2 className="font-display text-2xl text-foreground">Documentação pronta!</h2>
       <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-        Seu arquivo foi gerado com sucesso pela IA e já está disponível para download em
+        Seu arquivo foi gerado com sucesso e já está disponível para download em
         formato <span className="font-mono text-foreground">.{formatoSaida}</span>.
       </p>
 
