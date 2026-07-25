@@ -179,7 +179,7 @@ export function Dropzone({ arquivos, onArquivosChange, tipoDocumentacao, disable
           ou <span className="text-accent underline-offset-4 group-hover:underline">clique para selecionar</span> do seu computador
         </p>
         <p className="mt-3 font-mono text-xs text-muted-foreground/70">
-          .py .js .ts .java .go .rb .php .rs .zip — até 50MB por arquivo
+          EX: .py .js .ts .java .go .rb .php .rs .zip - até 50MB por arquivo
         </p>
       </div>
 

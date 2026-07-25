@@ -24,9 +24,12 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DocForge - Documentação de Software",
+  title: "DocMind - Documentação de Software",
   description:
     "Envie seu código e receba documentação técnica gerada em Markdown, Word ou PDF.",
+  icons: {
+    icon: "/images/mind-logo.png", 
+  },
 };
 
 export default function RootLayout({

@@ -22,7 +22,6 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Cores corporativas (mesma identidade usada no restante da plataforma)
 COR_NAVY = "003366"
 COR_ROYAL = "1D4ED8"
 COR_CINZA_TEXTO = "444444"
@@ -45,9 +44,6 @@ def remover_divisores_soltos(texto_markdown: str) -> str:
     return PADRAO_DIVISOR_SOLTO.sub("", texto_markdown)
 
 
-# ---------------------------------------------------------------------------
-# Registro da fonte Arial no motor de PDF
-# ---------------------------------------------------------------------------
 _FONTE_REGISTRADA = None
 
 def _registrar_fonte_arial() -> str:
@@ -164,8 +160,14 @@ blockquote {{
     page-break-inside: avoid;
 }}
 
-ul, ol {{ margin: 6px 0; padding-left: 20px; }}
-li {{ margin: 3px 0; }}
+ul, ol {{
+    list-style: none;
+    margin: 6px 0;
+    padding-left: 0;
+}}
+li {{ 
+    margin: 3px 0; 
+}}
 
 table {{
     border-collapse: collapse;
@@ -215,7 +217,7 @@ def adicionar_texto_formatado(paragrafo, texto: str):
         elif m.group("bold") is not None:
             run = paragrafo.add_run(m.group("bold"))
             run.bold = True
-            run.font.color.rgb = RGBColor(0x00, 0x33, 0x66) # Consistente com o strong do PDF
+            run.font.color.rgb = RGBColor(0x00, 0x33, 0x66) 
         else:
             conteudo_italico = m.group("italic1") or m.group("italic2")
             run = paragrafo.add_run(conteudo_italico)
@@ -226,9 +228,6 @@ def adicionar_texto_formatado(paragrafo, texto: str):
         paragrafo.add_run(texto[posicao:])
 
 
-# ---------------------------------------------------------------------------
-# Helpers de baixo nível do .docx
-# ---------------------------------------------------------------------------
 
 def _aplicar_sombreamento_celula(celula, cor_hex: str):
     tc_pr = celula._tc.get_or_add_tcPr()
@@ -324,11 +323,10 @@ def adicionar_rodape_docx(doc: Document):
     campo_total.font.size = Pt(8)
     campo_total.font.color.rgb = RGBColor(0x66, 0x66, 0x66)
 
-    r3 =agrafo_r3 = paragrafo.add_run("    ·    Mindworks — Documento Confidencial")
+    r3 = paragrafo.add_run("    ·    Mindworks — Documento Confidencial")
     r3.font.name = "Arial"
     r3.font.size = Pt(8)
     r3.font.color.rgb = RGBColor(0x66, 0x66, 0x66)
-
 
 def markdown_para_docx(doc: Document, texto_markdown: str):
     dentro_bloco_codigo = False
@@ -377,7 +375,6 @@ def markdown_para_docx(doc: Document, texto_markdown: str):
                 for r_idx, row_data in enumerate(dados_tabela):
                     row = table.rows[r_idx]
                     
-                    # Repetir cabeçalho automaticamente se a tabela quebrar de página
                     if r_idx == 0:
                         trPr = row._tr.get_or_add_trPr()
                         trPr.append(OxmlElement('w:tblHeader'))
@@ -421,18 +418,22 @@ def markdown_para_docx(doc: Document, texto_markdown: str):
 
         m = re.match(r"^[-*]\s+(.*)", linha)
         if m:
-            p = doc.add_paragraph(style="List Bullet")
+            p = doc.add_paragraph(style='List Bullet')
+            p.paragraph_format.space_before = Pt(0)
             p.paragraph_format.space_after = Pt(3)
+            p.paragraph_format.line_spacing = 1.45
             adicionar_texto_formatado(p, m.group(1))
             for run in p.runs:
                 run.font.name = "Arial"
+                run.font.size = Pt(10)
             i += 1
             continue
 
         m = re.match(r"^\d+\.\s+(.*)", linha)
         if m:
-            p = doc.add_paragraph(style="List Number")
-            p.paragraph_format.space_after = Pt(3)
+            p = doc.add_paragraph()
+            p.paragraph_format.space_after = Pt(4)
+            p.paragraph_format.line_spacing = 1.45
             adicionar_texto_formatado(p, m.group(1))
             for run in p.runs:
                 run.font.name = "Arial"

@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { FileStack, History, Settings, Wand2 } from "lucide-react";
+import { History, Settings, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ItemNavegacao {
@@ -26,12 +27,18 @@ export function Sidebar() {
     <>
       {/* Sidebar fixa — visível em telas médias/grandes */}
       <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 flex-col bg-navy text-navy-foreground md:flex">
-        <div className="flex items-center gap-2.5 px-6 py-6">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
-            <FileStack className="h-[18px] w-[18px]" />
+        <div className="flex items-center gap-3 px-6 py-6">
+          <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-white p-1.5 shadow-sm">
+            <Image
+              src="/images/mind-logo.png"
+              alt="Logo Mindworks"
+              fill
+              className="object-contain"
+              priority
+            />
           </div>
           <div>
-            <p className="font-display text-base font-semibold leading-none">DocForge</p>
+            <p className="font-display text-base font-semibold leading-none">DocMind</p>
             <p className="mt-1 font-mono text-[10px] uppercase tracking-wider text-white/50">
               Mindworks
             </p>

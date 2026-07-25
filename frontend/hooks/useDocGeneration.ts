@@ -22,7 +22,6 @@ export function useDocGeneration() {
   const { toast } = useToast();
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Recupera do sessionStorage incluindo "concluido" para manter a tela de download ativa ao trocar de aba
   const [status, setStatus] = useState<StatusGeracao>(() => {
     if (typeof window !== "undefined") {
       const salvo = sessionStorage.getItem(STORAGE_KEY_STATUS) as StatusGeracao;
@@ -91,7 +90,6 @@ export function useDocGeneration() {
     setJobId(novoJobId);
 
     if (typeof window !== "undefined") {
-      // Removido o "concluido" daqui para que ele seja salvo no sessionStorage e não limpo ao trocar de aba
       if (novoStatus === "idle" || novoStatus === "erro") {
         sessionStorage.clear();
       } else {
@@ -107,7 +105,21 @@ export function useDocGeneration() {
     }
   };
 
+  // Função exclusiva para quando o usuário clica em reiniciar/gerar outro documento (NÃO mexe no banco)
   const reiniciar = useCallback(async () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+
+    persistirEstado("idle", 0, undefined, null, null);
+    if (typeof window !== "undefined") {
+      sessionStorage.clear();
+    }
+  }, []);
+
+  // Nova função exclusiva para o botão de cancelar explícito durante o processamento
+  const cancelarProcesso = useCallback(async () => {
     if (jobId && !modoSimulado.current) {
       try {
         await supabase!
@@ -281,7 +293,8 @@ export function useDocGeneration() {
     mutationEnvio.mutate({ arquivos, configuracao });
   }, [mutationEnvio]);
 
-  return { status, progresso, mensagem, urlArquivoFinal, gerarDocumentacao, reiniciar };
+  // Exportamos também a função cancelarProcesso
+  return { status, progresso, mensagem, urlArquivoFinal, gerarDocumentacao, reiniciar, cancelarProcesso };
 }
 
 const ETAPAS_SIMULADAS = [
