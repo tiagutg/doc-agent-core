@@ -40,7 +40,6 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
-        {/* Script síncrono para aplicar o tema escuro antes de renderizar e evitar o flash branco */}
         <script
           dangerouslySetInnerHTML={{
             __html: `

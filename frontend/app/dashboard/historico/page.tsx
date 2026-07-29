@@ -16,7 +16,6 @@ export default function PaginaHistorico() {
   const { toast } = useToast();
   const [itens, setItens] = useState<ItemHistorico[]>([]);
 
-  // Carrega o histórico do localStorage apenas no cliente (evita mismatch de SSR).
   useEffect(() => {
     setItens(listarHistorico());
   }, []);

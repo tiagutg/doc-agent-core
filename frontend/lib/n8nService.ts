@@ -3,8 +3,6 @@
 export async function enviarArquivoParaN8n(file: File) {
   const formData = new FormData();
   
-  // 'data' deve ser exatamente o mesmo nome que você colocou 
-  // no campo "Field Name for Binary Data" do nó Webhook no n8n.
   formData.append('data', file);
 
   try {
@@ -20,7 +18,7 @@ export async function enviarArquivoParaN8n(file: File) {
     const resultado = await response.json();
     console.log("Sucesso! Job ID recebido:", resultado.job_id);
     
-    return resultado.job_id; // Este ID é o que você vai usar para o polling
+    return resultado.job_id; 
   } catch (error) {
     console.error("Erro na comunicação com o n8n:", error);
     throw error;

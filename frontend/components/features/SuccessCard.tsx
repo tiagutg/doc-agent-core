@@ -11,7 +11,7 @@ interface SuccessCardProps {
 }
 
 export function SuccessCard({ urlArquivo, formatoSaida, onGerarNovamente }: SuccessCardProps) {
-  // Dispara o download do arquivo de forma forçada utilizando Blob para evitar que o navegador abra o PDF em outra aba.
+ 
   const baixarArquivo = async () => {
     try {
       const response = await fetch(urlArquivo);
@@ -27,7 +27,7 @@ export function SuccessCard({ urlArquivo, formatoSaida, onGerarNovamente }: Succ
       
       window.URL.revokeObjectURL(blobUrl);
     } catch (error) {
-      // Fallback de segurança caso ocorra algum bloqueio de CORS
+     
       window.open(urlArquivo, "_blank");
     }
   };

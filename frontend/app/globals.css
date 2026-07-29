@@ -2,27 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-/*
-  Tema: identidade corporativa Mindworks — fundo claro (branco/cinza-claro),
-  tipografia sem-serifa (Inter) para títulos e corpo, acento em Azul Royal
-  para ações, Azul Marinho reservado para elementos de navegação/estrutura
-  (ex: Sidebar). Âmbar/laranja/dourado foram totalmente removidos.
-
-  Os NOMES das variáveis (--background, --accent, --surface...) permanecem
-  os mesmos do tema anterior de propósito: como os componentes consomem
-  apenas esses tokens semânticos (nunca cores hardcoded), a retematização
-  não exige alteração em nenhum componente existente.
-*/
 :root {
   --font-display: "Inter", sans-serif;
   --font-body: "IBM Plex Sans", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
-  /* Tema claro corporativo (padrão) */
-  --background: 210 20% 98%; /* branco levemente azulado */
-  --foreground: 213 60% 14%; /* azul marinho profundo (#0A1F3D aprox.) */
+  
+  --background: 210 20% 98%; 
+  --foreground: 213 60% 14%; 
 
-  --navy: 210 100% 20%; /* #003366 — Azul Marinho institucional */
+  --navy: 210 100% 20%;
   --navy-foreground: 0 0% 100%;
 
   --surface: 0 0% 100%;
@@ -35,17 +24,12 @@
 
   --muted-foreground: 213 15% 45%;
 
-  --accent: 217 91% 45%; /* Azul Royal — ações primárias */
+  --accent: 217 91% 45%;
   --accent-foreground: 0 0% 100%;
 
   --radius: 0.75rem;
 }
 
-/*
-  Variante escura corporativa, reservada para uso futuro via
-  Configurações > Tema (ver components/features/ConfiguracoesForm.tsx).
-  Ainda não é o padrão da aplicação.
-*/
 .dark {
   --background: 213 55% 8%;
   --foreground: 210 20% 96%;
@@ -88,7 +72,6 @@
     background-color: hsl(var(--accent) / 0.2);
   }
 
-  /* Scrollbar discreta, alinhada ao tema ativo (claro ou escuro) */
   ::-webkit-scrollbar {
     width: 10px;
   }
@@ -110,7 +93,6 @@
     font-family: var(--font-mono);
   }
 
-  /* Textura de "grão" sutil sobre cards, reforça o tom editorial/premium */
   .grain-overlay {
     position: relative;
   }

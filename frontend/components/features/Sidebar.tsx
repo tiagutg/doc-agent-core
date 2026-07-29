@@ -12,8 +12,7 @@ interface ItemNavegacao {
   icone: typeof Wand2;
 }
 
-// Fonte única de verdade para os itens de navegação do dashboard.
-// Adicionar uma nova rota do dashboard = adicionar uma linha aqui.
+
 const ITENS_NAVEGACAO: ItemNavegacao[] = [
   { href: "/dashboard/gerar", label: "Gerar", icone: Wand2 },
   { href: "/dashboard/historico", label: "Histórico", icone: History },
@@ -25,7 +24,7 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Sidebar fixa — visível em telas médias/grandes */}
+      
       <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 flex-col bg-navy text-navy-foreground md:flex">
         <div className="flex items-center gap-3 px-6 py-6">
           <div className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-white p-1.5 shadow-sm">
@@ -75,7 +74,7 @@ export function Sidebar() {
         </div>
       </aside>
 
-      {/* Barra de navegação inferior — visível apenas em telas pequenas */}
+      
       <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-border bg-navy py-2 md:hidden">
         {ITENS_NAVEGACAO.map((item) => {
           const ativo = pathname?.startsWith(item.href);

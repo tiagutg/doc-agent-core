@@ -1,6 +1,5 @@
 "use client";
 
-// Implementação padrão do shadcn/ui para gerenciamento de toasts via reducer global.
 import * as React from "react";
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast";
 

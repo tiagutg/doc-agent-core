@@ -19,7 +19,7 @@ export default function PaginaGerar() {
 
   const [arquivos, setArquivos] = useState<ArquivoSelecionado[]>([]);
   
-  // Inicializa o estado buscando do sessionStorage se disponível (evita reset ao navegar)
+ 
   const [configuracao, setConfiguracao] = useState<ConfiguracaoDocumento>(() => {
     if (typeof window !== "undefined") {
       const formatoSalvo = sessionStorage.getItem("formato_saida");
@@ -37,7 +37,7 @@ export default function PaginaGerar() {
     };
   });
 
-  // Salva no sessionStorage sempre que a configuração mudar (Persistência em tempo real)
+ 
   useEffect(() => {
     if (typeof window !== "undefined") {
       sessionStorage.setItem("formato_saida", configuracao.formatoSaida);
@@ -53,7 +53,6 @@ export default function PaginaGerar() {
 
   const ultimaUrlSalva = useRef<string | null>(null);
 
-  // Salva histórico quando concluído com sucesso (com trava de unicidade por sessão)
   useEffect(() => {
     if (status === "concluido" && urlArquivoFinal) {
       const chaveHistoricoSalvo = `historico_salvo_${urlArquivoFinal}`;
@@ -76,7 +75,6 @@ export default function PaginaGerar() {
 
   const ultimoErroSalvo = useRef(false);
   
-  // Salva histórico quando ocorre erro genérico (ex: falha de rede/API)
   useEffect(() => {
     if (status === "erro" && !ultimoErroSalvo.current) {
       salvarItemHistorico({

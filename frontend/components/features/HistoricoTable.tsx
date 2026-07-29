@@ -10,7 +10,7 @@ interface HistoricoTableProps {
   onRemover: (id: string) => void;
 }
 
-/** Formata a data ISO salva no histórico para o padrão brasileiro (dd/mm/aaaa hh:mm). */
+
 function formatarData(dataIso: string): string {
   return new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
@@ -21,7 +21,7 @@ function formatarData(dataIso: string): string {
   }).format(new Date(dataIso));
 }
 
-/** Extrai o nome real do arquivo a partir da URL do Supabase ou usa o fallback. */
+
 function obterNomeArquivo(item: ItemHistorico): string {
   if (item.urlArquivo) {
     try {

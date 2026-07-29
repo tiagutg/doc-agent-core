@@ -23,7 +23,6 @@ interface ConfigFormProps {
   disabled?: boolean;
 }
 
-// Ícone representativo para cada formato de saída, usado nos radio cards.
 const ICONE_FORMATO: Record<FormatoSaida, typeof FileText> = {
   md: FileText,
   docx: FileType2,
@@ -41,7 +40,6 @@ export function ConfigForm({ configuracao, onConfiguracaoChange, disabled }: Con
 
   return (
     <div className="space-y-5">
-      {/* Select: Tipo de Documentação */}
       <div className="space-y-2">
         <label className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
           Tipo de documentação
@@ -67,7 +65,6 @@ export function ConfigForm({ configuracao, onConfiguracaoChange, disabled }: Con
         </Select>
       </div>
 
-      {/* Radio cards: Formato de Saída */}
       <div className="space-y-2">
         <label className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
           Formato de saída

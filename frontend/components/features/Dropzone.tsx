@@ -18,7 +18,7 @@ const EXTENSOES_ACEITAS = {
   "application/x-zip-compressed": [".zip"],
 };
 
-const TAMANHO_MAXIMO_BYTES = 50 * 1024 * 1024; // 50 MB por arquivo
+const TAMANHO_MAXIMO_BYTES = 50 * 1024 * 1024; 
 
 interface DropzoneProps {
   arquivos: ArquivoSelecionado[];
@@ -30,7 +30,7 @@ interface DropzoneProps {
 export function Dropzone({ arquivos, onArquivosChange, tipoDocumentacao, disabled }: DropzoneProps) {
   const { toast } = useToast();
 
-  // Ao carregar a tela, tenta restaurar os arquivos salvos no sessionStorage
+  
   useEffect(() => {
     if (typeof window !== "undefined" && arquivos.length === 0) {
       const arquivosSalvosJson = sessionStorage.getItem("arquivos_cache");
@@ -38,7 +38,7 @@ export function Dropzone({ arquivos, onArquivosChange, tipoDocumentacao, disable
         try {
           const cacheParsed = JSON.parse(arquivosSalvosJson);
           const arquivosRestaurados: ArquivoSelecionado[] = cacheParsed.map((item: any) => {
-            // Recria o objeto File virtual a partir do conteúdo salvo
+            
             const file = new File([item.conteudoTexto], item.nome, { type: item.tipo || "text/plain" });
             return {
               id: item.id,
@@ -56,7 +56,7 @@ export function Dropzone({ arquivos, onArquivosChange, tipoDocumentacao, disable
     }
   }, []);
 
-  // Função auxiliar para atualizar o estado e persistir no sessionStorage
+  
   const atualizarEPersistir = (novosArquivos: ArquivoSelecionado[]) => {
     onArquivosChange(novosArquivos);
 
@@ -64,7 +64,7 @@ export function Dropzone({ arquivos, onArquivosChange, tipoDocumentacao, disable
       if (novosArquivos.length === 0) {
         sessionStorage.removeItem("arquivos_cache");
       } else {
-        // Para salvar no Storage, lemos as propriedades essenciais e o conteúdo de texto de cada arquivo
+        
         Promise.all(
           novosArquivos.map(async (item) => {
             let conteudoTexto = "";
@@ -107,10 +107,10 @@ export function Dropzone({ arquivos, onArquivosChange, tipoDocumentacao, disable
         extensao: getFileExtension(file.name),
       }));
 
-      // Combina com os já existentes antes de validar o escopo
+      
       const combinados = [...arquivos, ...novosMapeados];
 
-      // Se houver um tipo de documentação definido, valida o escopo
+      
       if (tipoDocumentacao) {
         const { arquivosValidos, arquivosFiltrados } = filtrarArquivosPorEscopo(combinados, tipoDocumentacao);
         

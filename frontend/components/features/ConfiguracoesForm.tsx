@@ -26,7 +26,6 @@ export function ConfiguracoesForm() {
   const { toast } = useToast();
   const [configuracoes, setConfiguracoes] = useState<ConfiguracoesApp>(CONFIGURACOES_PADRAO);
 
-  // Carrega as configurações salvas apenas no cliente (evita mismatch de SSR).
   useEffect(() => {
     setConfiguracoes(obterConfiguracoes());
   }, []);
@@ -112,7 +111,7 @@ export function ConfiguracoesForm() {
         </CardContent>
       </Card>
 
-      {/* Placeholder para autenticação futura — desabilitado por enquanto */}
+      
       <Card className="opacity-60">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
@@ -120,8 +119,7 @@ export function ConfiguracoesForm() {
             Autenticação
           </CardTitle>
           <CardDescription>
-            Login corporativo e permissões por usuário chegam em uma próxima etapa,
-            junto com a integração de backend.
+            Login corporativo e permissões por usuário chegam em uma próxima etapa.
           </CardDescription>
         </CardHeader>
       </Card>
