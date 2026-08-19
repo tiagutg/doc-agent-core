@@ -1,9 +1,3 @@
-/**
- * Configurações da aplicação, persistidas em localStorage por enquanto.
- * Estrutura pensada para, no futuro, ser substituída por uma chamada de API
- * (ex: GET/PUT /api/configuracoes) sem alterar a interface consumida pelas páginas.
- */
-
 const CHAVE_STORAGE = "docforge:configuracoes";
 
 export type TemaApp = "claro" | "escuro";
@@ -21,7 +15,6 @@ export const CONFIGURACOES_PADRAO: ConfiguracoesApp = {
   nomeEmpresa: "",
 };
 
-/** Lê as configurações salvas, retornando os valores padrão quando não houver nada salvo. */
 export function obterConfiguracoes(): ConfiguracoesApp {
   if (typeof window === "undefined") return CONFIGURACOES_PADRAO;
 
@@ -34,14 +27,12 @@ export function obterConfiguracoes(): ConfiguracoesApp {
   }
 }
 
-/** Salva as configurações e aplica o tema imediatamente ao <html>. */
 export function salvarConfiguracoes(configuracoes: ConfiguracoesApp): void {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(CHAVE_STORAGE, JSON.stringify(configuracoes));
   aplicarTema(configuracoes.tema);
 }
 
-/** Alterna a classe "dark" no elemento <html>, ativando a variante escura definida em globals.css. */
 export function aplicarTema(tema: TemaApp): void {
   if (typeof window === "undefined") return;
   document.documentElement.classList.toggle("dark", tema === "escuro");

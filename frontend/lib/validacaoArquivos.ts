@@ -1,6 +1,5 @@
 import type { TipoDocumentacao } from "@/lib/types";
 
-// Mapeamento completo de extensões por categoria técnica
 const EXTENSOES_BACKEND = [
   ".py", ".php", ".rb", ".go", ".cs", ".java", ".rs", ".cpp", ".c", ".h", ".swift", ".kt"
 ];
@@ -26,10 +25,6 @@ export interface ResultadoValidacaoEscopo {
   arquivosFiltrados: string[];
 }
 
-/**
- * Validação rigorosa e abrangente para evitar ruído e economizar tokens.
- * Filtra arquivos que não pertencem ao contexto selecionado pela documentação.
- */
 export function filtrarArquivosPorEscopo(
   arquivos: any[],
   tipoDocumentacao: TipoDocumentacao
@@ -40,12 +35,10 @@ export function filtrarArquivosPorEscopo(
   const arquivosValidos = arquivos.filter((item) => {
     const nome = (item.nome || item.file?.name || "").toLowerCase();
 
-    // Se for arquivo compactado (.zip), geralmente permitimos pois ele pode conter a árvore inteira
     if (nome.endsWith(".zip")) {
       return true;
     }
 
-    // Regra para Documentação Frontend
     if (tipo.includes("frontend")) {
       const eBackendPuro = EXTENSOES_BACKEND.some((ext) => nome.endsWith(ext));
       const eBanco = EXTENSOES_DADOS.some((ext) => nome.endsWith(ext));
@@ -56,7 +49,6 @@ export function filtrarArquivosPorEscopo(
       }
     }
 
-    // Regra para Documentação Backend
     if (tipo.includes("backend")) {
       const eFrontendPuro = EXTENSOES_FRONTEND.some((ext) => nome.endsWith(ext));
       
@@ -66,7 +58,6 @@ export function filtrarArquivosPorEscopo(
       }
     }
 
-    // Você pode adicionar mais regras específicas aqui conforme novos tipos forem criados no sistema (ex: mobile, banco de dados, etc.)
 
     return true;
   });

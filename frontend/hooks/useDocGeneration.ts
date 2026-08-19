@@ -5,7 +5,6 @@ import axios from "axios";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { createClient } from "@/lib/supabase/client";
-import { salvarItemHistorico } from "@/lib/historico";
 import type { ArquivoSelecionado, ConfiguracaoDocumento, StatusGeracao } from "@/lib/types";
 
 const WEBHOOK_URL = process.env.NEXT_PUBLIC_N8N_WEBHOOK_URL || null;
@@ -22,57 +21,34 @@ export function useDocGeneration() {
   const { toast } = useToast();
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const [status, setStatus] = useState<StatusGeracao>(() => {
-    if (typeof window !== "undefined") {
-      const salvo = sessionStorage.getItem(STORAGE_KEY_STATUS) as StatusGeracao;
-      if (salvo === "enviando" || salvo === "processando" || salvo === "concluido") {
-        return salvo;
-      }
-    }
-    return "idle";
-  });
+  // 1. Iniciamos com estados padrão seguros para o SSR (evita erro de hidratação)
+  const [status, setStatus] = useState<StatusGeracao>("idle");
+  const [progresso, setProgresso] = useState<number>(0);
+  const [mensagem, setMensagem] = useState<string | undefined>(undefined);
+  const [urlArquivoFinal, setUrlArquivoFinal] = useState<string | null>(null);
+  const [jobId, setJobId] = useState<number | null>(null);
 
-  const [progresso, setProgresso] = useState<number>(() => {
-    if (typeof window !== "undefined") {
-      const salvoStatus = sessionStorage.getItem(STORAGE_KEY_STATUS);
-      if (salvoStatus === "enviando" || salvoStatus === "processando" || salvoStatus === "concluido") {
-        const val = sessionStorage.getItem(STORAGE_KEY_PROGRESSO);
-        return val ? parseInt(val, 10) : 0;
-      }
-    }
-    return 0;
-  });
+  // 2. Recuperamos do sessionStorage de forma segura APÓS a montagem no cliente
+  useEffect(() => {
+    if (typeof window === "undefined") return;
 
-  const [mensagem, setMensagem] = useState<string | undefined>(() => {
-    if (typeof window !== "undefined") {
-      const salvoStatus = sessionStorage.getItem(STORAGE_KEY_STATUS);
-      if (salvoStatus === "enviando" || salvoStatus === "processando" || salvoStatus === "concluido") {
-        return sessionStorage.getItem(STORAGE_KEY_MENSAGEM) || undefined;
-      }
-    }
-    return undefined;
-  });
+    const salvoStatus = sessionStorage.getItem(STORAGE_KEY_STATUS) as StatusGeracao;
+    if (salvoStatus === "enviando" || salvoStatus === "processando" || salvoStatus === "concluido") {
+      setStatus(salvoStatus);
+      
+      const valProg = sessionStorage.getItem(STORAGE_KEY_PROGRESSO);
+      if (valProg) setProgresso(parseInt(valProg, 10));
 
-  const [urlArquivoFinal, setUrlArquivoFinal] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      const salvoStatus = sessionStorage.getItem(STORAGE_KEY_STATUS);
-      if (salvoStatus === "enviando" || salvoStatus === "processando" || salvoStatus === "concluido") {
-        return sessionStorage.getItem(STORAGE_KEY_URL) || null;
-      }
-    }
-    return null;
-  });
+      const valMsg = sessionStorage.getItem(STORAGE_KEY_MENSAGEM);
+      if (valMsg) setMensagem(valMsg);
 
-  const [jobId, setJobId] = useState<number | null>(() => {
-    if (typeof window !== "undefined") {
-      const salvoStatus = sessionStorage.getItem(STORAGE_KEY_STATUS);
-      if (salvoStatus === "enviando" || salvoStatus === "processando" || salvoStatus === "concluido") {
-        const val = sessionStorage.getItem(STORAGE_KEY_JOBID);
-        return val ? parseInt(val, 10) : null;
-      }
+      const valUrl = sessionStorage.getItem(STORAGE_KEY_URL);
+      if (valUrl) setUrlArquivoFinal(valUrl);
+
+      const valJob = sessionStorage.getItem(STORAGE_KEY_JOBID);
+      if (valJob) setJobId(parseInt(valJob, 10));
     }
-    return null;
-  });
+  }, []);
 
   const modoSimulado = useRef(!WEBHOOK_URL || !supabase);
 
@@ -105,7 +81,6 @@ export function useDocGeneration() {
     }
   };
 
-  // Função exclusiva para quando o usuário clica em reiniciar/gerar outro documento (NÃO mexe no banco)
   const reiniciar = useCallback(async () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -118,7 +93,6 @@ export function useDocGeneration() {
     }
   }, []);
 
-  // Nova função exclusiva para o botão de cancelar explícito durante o processamento
   const cancelarProcesso = useCallback(async () => {
     if (jobId && !modoSimulado.current) {
       try {
@@ -293,7 +267,6 @@ export function useDocGeneration() {
     mutationEnvio.mutate({ arquivos, configuracao });
   }, [mutationEnvio]);
 
-  // Exportamos também a função cancelarProcesso
   return { status, progresso, mensagem, urlArquivoFinal, gerarDocumentacao, reiniciar, cancelarProcesso };
 }
 

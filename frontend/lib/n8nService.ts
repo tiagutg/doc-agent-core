@@ -1,5 +1,3 @@
-// frontend/lib/n8nService.ts
-
 export async function enviarArquivoParaN8n(file: File) {
   const formData = new FormData();
   

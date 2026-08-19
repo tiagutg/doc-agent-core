@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect } from "react";
 import { useDropzone, type FileRejection } from "react-dropzone";
-import { FileArchive, FileCode2, UploadCloud, X } from "lucide-react";
-import { cn, formatFileSize, generateId, getFileExtension } from "@/lib/utils";
+import { UploadCloud } from "lucide-react";
+import { cn, generateId, getFileExtension } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import type { ArquivoSelecionado, TipoDocumentacao } from "@/lib/types";
 import { filtrarArquivosPorEscopo } from "@/lib/validacaoArquivos";
@@ -18,7 +18,7 @@ const EXTENSOES_ACEITAS = {
   "application/x-zip-compressed": [".zip"],
 };
 
-const TAMANHO_MAXIMO_BYTES = 50 * 1024 * 1024; 
+const TAMANHO_MAXIMO_BYTES = 1024 * 1024 * 1024; 
 
 interface DropzoneProps {
   arquivos: ArquivoSelecionado[];
@@ -30,7 +30,6 @@ interface DropzoneProps {
 export function Dropzone({ arquivos, onArquivosChange, tipoDocumentacao, disabled }: DropzoneProps) {
   const { toast } = useToast();
 
-  
   useEffect(() => {
     if (typeof window !== "undefined" && arquivos.length === 0) {
       const arquivosSalvosJson = sessionStorage.getItem("arquivos_cache");
@@ -38,7 +37,6 @@ export function Dropzone({ arquivos, onArquivosChange, tipoDocumentacao, disable
         try {
           const cacheParsed = JSON.parse(arquivosSalvosJson);
           const arquivosRestaurados: ArquivoSelecionado[] = cacheParsed.map((item: any) => {
-            
             const file = new File([item.conteudoTexto], item.nome, { type: item.tipo || "text/plain" });
             return {
               id: item.id,
@@ -56,7 +54,6 @@ export function Dropzone({ arquivos, onArquivosChange, tipoDocumentacao, disable
     }
   }, []);
 
-  
   const atualizarEPersistir = (novosArquivos: ArquivoSelecionado[]) => {
     onArquivosChange(novosArquivos);
 
@@ -64,7 +61,6 @@ export function Dropzone({ arquivos, onArquivosChange, tipoDocumentacao, disable
       if (novosArquivos.length === 0) {
         sessionStorage.removeItem("arquivos_cache");
       } else {
-        
         Promise.all(
           novosArquivos.map(async (item) => {
             let conteudoTexto = "";
@@ -95,7 +91,7 @@ export function Dropzone({ arquivos, onArquivosChange, tipoDocumentacao, disable
         toast({
           variant: "destructive",
           title: "Alguns arquivos foram rejeitados",
-          description: `${arquivosRejeitados.length} arquivo(s) excedem 50MB ou possuem um tipo não suportado.`,
+          description: `${arquivosRejeitados.length} arquivo(s) excedem 1GB ou possuem um tipo não suportado.`,
         });
       }
 
@@ -107,10 +103,8 @@ export function Dropzone({ arquivos, onArquivosChange, tipoDocumentacao, disable
         extensao: getFileExtension(file.name),
       }));
 
-      
       const combinados = [...arquivos, ...novosMapeados];
 
-      
       if (tipoDocumentacao) {
         const { arquivosValidos, arquivosFiltrados } = filtrarArquivosPorEscopo(combinados, tipoDocumentacao);
         
@@ -138,11 +132,6 @@ export function Dropzone({ arquivos, onArquivosChange, tipoDocumentacao, disable
     disabled,
     multiple: true,
   });
-
-  const removerArquivo = (id: string) => {
-    const filtrados = arquivos.filter((a) => a.id !== id);
-    atualizarEPersistir(filtrados);
-  };
 
   return (
     <div className="space-y-4">
@@ -179,46 +168,9 @@ export function Dropzone({ arquivos, onArquivosChange, tipoDocumentacao, disable
           ou <span className="text-accent underline-offset-4 group-hover:underline">clique para selecionar</span> do seu computador
         </p>
         <p className="mt-3 font-mono text-xs text-muted-foreground/70">
-          EX: .py .js .ts .java .go .rb .php .rs .zip - até 50MB por arquivo
+          EX: .py .js .ts .java .go .rb .php .rs .zip - até 1GB por arquivo
         </p>
       </div>
-
-      {arquivos.length > 0 && (
-        <ul className="space-y-2">
-          {arquivos.map((arquivo) => (
-            <li
-              key={arquivo.id}
-              className="animate-fade-up flex items-center justify-between gap-3 rounded-xl border border-border bg-surface-input px-4 py-3"
-            >
-              <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-elevated">
-                  {arquivo.extensao === "zip" ? (
-                    <FileArchive className="h-4 w-4 text-accent" />
-                  ) : (
-                    <FileCode2 className="h-4 w-4 text-accent" />
-                  )}
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-foreground">{arquivo.nome}</p>
-                  <p className="font-mono text-xs text-muted-foreground">
-                    {formatFileSize(arquivo.tamanho)}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => removerArquivo(arquivo.id)}
-                disabled={disabled}
-                className="shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-surface-hover hover:text-red-400 disabled:pointer-events-none"
-                aria-label={`Remover ${arquivo.nome}`}
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }
